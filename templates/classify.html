@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Classification results</title>
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.1.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Predicted Foods</h3>
+        </div>
+        <div class="panel-body">
+            <img src={{img}}>
+
+            <ul class="nav nav-pills" role="tablist">
+                {% for item in classes %}
+                <li role="presentation"><a href="#">{{item}}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <a href={{ url_for('classify_index') }}>Back</a>
+</div>
+
+
+</body>
+</html>

@@ -38,34 +38,16 @@ def classify_index():
     return flask.make_response(u",".join(names), 200, {'ClassificationAccuracy': accuracy})
 
 
-@app.route('/predict/<name>')
-def predict(name):
-    link = "http://www.facebookas.lt/wp-content/uploads/2016/01/Basilico.jpg"
-    url = url_to_img(link)
-    #a = classify("images.jpeg")
-    a = classifys(url)
-    return a
+@app.route('/classify_url', methods=['GET'])
+def predict():
+    imageurl = flask.request.args.get('imageurl', '')
+    image = url_to_img(imageurl)
+    a = classify_internet(image)
+
+    return flask.render_template('classify.html', classes=a[0:3], img=imageurl)
 
 
-def classify_image(self, image):
-    try:
-        start_time = time.time()
-        probs, labels = self.sess.run(
-            [self.values, self.indices], feed_dict={self.image_buffer: image})
-        labels = labels[0]
-        probs = probs[0]
-        end_time = time.time()
-        app.logger.info(
-            "classify_image cost %.2f secs", end_time - start_time)
-        return [self.label_names[labels[0]], self.label_names[labels[1]], self.label_names[labels[2]]], probs[
-                                                                                                        :3], end_time - start_time, sum(
-            probs)
-    except Exception as err:
-        return None
-
-
-def classifys(image_data):
-
+def classify_internet(image_data):
     # Loads label file, strips off carriage return
     label_lines = [line.rstrip() for line
                    in tf.gfile.GFile("models/retrained_labels2.txt")]
@@ -75,6 +57,8 @@ def classifys(image_data):
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(f.read())
         _ = tf.import_graph_def(graph_def, name='')
+
+    li = []
 
     with tf.Session() as sess:
         # Feed the image_data as input to the graph and get first prediction
@@ -89,7 +73,11 @@ def classifys(image_data):
         for node_id in top_k:
             human_string = label_lines[node_id]
             score = predictions[0][node_id]
-            return ('%s (score = %.5f)' % (human_string, score))
+            #st = human_string +" " + str(score)
+            #li.append('%s (score = %.5f)' % (human_string, score))
+            li.append(human_string)
+
+    return li
 
 
 def classify(image_path):
@@ -124,6 +112,7 @@ def classify(image_path):
 def url_to_img(url):
     response = urllib2.urlopen(url)
     return response.read()
+
 
 if __name__ == '__main__':
     app.debug = True
